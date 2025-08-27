@@ -1,19 +1,25 @@
-// Minimal slope guessing game
 const canvas = document.getElementById('graph');
 const ctx = canvas.getContext('2d');
 const width = canvas.width;
 const height = canvas.height;
+const pointLabel = document.getElementById('point-label');
+const plotResult = document.getElementById('plot-result');
+const formulaSection = document.getElementById('formula-section');
+const formulaResult = document.getElementById('formula-result');
+const explanation = document.getElementById('explanation');
+const newProblemBtn = document.getElementById('new-problem');
 
-// One random point
-const point = {
-  x: Math.floor(Math.random() * 200) + 100,
-  y: Math.floor(Math.random() * 200) + 100
-};
+let point = null;
+let userPlotted = false;
 
-// Random slope for the answer
-const trueSlope = (Math.random() * 4 - 2).toFixed(2); // between -2 and 2
+function randomPoint() {
+  return {
+    x: Math.floor(Math.random() * 200) + 100,
+    y: Math.floor(Math.random() * 200) + 100
+  };
+}
 
-function drawGraph(userSlope = null) {
+function drawGraph(showPoint = true, userX = null, userY = null) {
   ctx.clearRect(0, 0, width, height);
   // Axes
   ctx.strokeStyle = '#aaa';
@@ -24,41 +30,73 @@ function drawGraph(userSlope = null) {
   ctx.lineTo(width/2, height);
   ctx.stroke();
 
-  // The point
-  ctx.fillStyle = 'red';
-  ctx.beginPath();
-  ctx.arc(point.x, point.y, 6, 0, 2 * Math.PI);
-  ctx.fill();
-
-  // User's guessed line
-  if (userSlope !== null) {
-    ctx.strokeStyle = 'blue';
+  // The point to guess
+  if (showPoint && point) {
+    ctx.fillStyle = 'red';
     ctx.beginPath();
-    // y = m(x - x0) + y0
-    let x1 = 0;
-    let y1 = userSlope * (x1 - point.x) + point.y;
-    let x2 = width;
-    let y2 = userSlope * (x2 - point.x) + point.y;
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
+    ctx.arc(point.x, point.y, 6, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+  // User's plotted point
+  if (userX !== null && userY !== null) {
+    ctx.fillStyle = 'blue';
+    ctx.beginPath();
+    ctx.arc(userX, userY, 6, 0, 2 * Math.PI);
+    ctx.fill();
   }
 }
 
-drawGraph();
+function reset() {
+  point = randomPoint();
+  userPlotted = false;
+  pointLabel.textContent = `(${point.x}, ${point.y})`;
+  plotResult.textContent = '';
+  formulaSection.style.display = 'none';
+  formulaResult.textContent = '';
+  explanation.textContent = '';
+  newProblemBtn.style.display = 'none';
+  drawGraph(true);
+}
 
-document.getElementById('guess-btn').onclick = function() {
-  const guess = parseFloat(document.getElementById('slope').value);
-  if (isNaN(guess)) {
-    document.getElementById('result').textContent = 'Enter a valid number.';
-    return;
-  }
-  drawGraph(guess);
-  // Show how close the guess is
-  const diff = Math.abs(guess - trueSlope);
-  if (diff < 0.05) {
-    document.getElementById('result').textContent = `Correct! The slope was ${trueSlope}`;
+canvas.onclick = function(e) {
+  if (userPlotted) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.round(e.clientX - rect.left);
+  const y = Math.round(e.clientY - rect.top);
+  drawGraph(true, x, y);
+  if (Math.abs(x - point.x) < 8 && Math.abs(y - point.y) < 8) {
+    plotResult.textContent = 'Correct! Now enter a slope-intercept formula for a line through this point.';
+    formulaSection.style.display = '';
+    userPlotted = true;
   } else {
-    document.getElementById('result').textContent = `Off by ${diff.toFixed(2)}. Try again!`;
+    plotResult.textContent = 'Try again! Plot the point as close as you can.';
   }
 };
+
+document.getElementById('check-formula').onclick = function() {
+  const m = parseFloat(document.getElementById('m').value);
+  const b = parseFloat(document.getElementById('b').value);
+  if (isNaN(m) || isNaN(b)) {
+    formulaResult.textContent = 'Enter valid numbers for m and b.';
+    return;
+  }
+  // Check if the formula passes through the point
+  // y = m x + b
+  const expectedY = m * point.x + b;
+  if (Math.abs(expectedY - point.y) < 0.1) {
+    formulaResult.textContent = `Correct! y = ${m}x + ${b}`;
+    explanation.innerHTML = `Any line through (${point.x}, ${point.y}) can be written as y = m x + b.<br>
+      For this point, plug in x = ${point.x}, y = ${point.y}:<br>
+      ${point.y} = m * ${point.x} + b<br>
+      So b = ${point.y} - m * ${point.x}.<br>
+      Any slope m works, as long as b = ${point.y} - m * ${point.x}.`;
+    newProblemBtn.style.display = '';
+  } else {
+    formulaResult.textContent = 'That formula does not pass through the point. Try again!';
+    explanation.textContent = '';
+  }
+};
+
+newProblemBtn.onclick = reset;
+
+reset();
