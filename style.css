@@ -1,0 +1,36 @@
+body {
+  font-family: sans-serif;
+  background: #fafafa;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#graph-container {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  margin: 20px 0;
+}
+#graph {
+  border: 1px solid #333;
+  background: #fff;
+}
+#blocker {
+  position: absolute;
+  left: 220px;
+  top: 80px;
+  width: 120px;
+  height: 240px;
+  background: rgba(100,100,100,0.7);
+  z-index: 2;
+  pointer-events: none;
+}
+#controls {
+  margin-top: 10px;
+}
+#result {
+  margin-top: 10px;
+  font-weight: bold;
+}

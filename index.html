@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slope Guessing Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Slope Guessing Game</h1>
+  <div id="graph-container">
+    <canvas id="graph" width="400" height="400"></canvas>
+    <div id="blocker"></div>
+  </div>
+  <div id="controls">
+    <label for="x-guess">Guess x: </label>
+    <input type="number" id="x-guess" step="1">
+    <label for="y-guess">Guess y: </label>
+    <input type="number" id="y-guess" step="1">
+    <button id="guess-btn">Guess</button>
+    <div id="result"></div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
