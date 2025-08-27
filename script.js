@@ -1,4 +1,4 @@
-// Minimal graph with one point and blocker, user guesses coordinates
+// Minimal slope guessing game
 const canvas = document.getElementById('graph');
 const ctx = canvas.getContext('2d');
 const width = canvas.width;
@@ -10,7 +10,10 @@ const point = {
   y: Math.floor(Math.random() * 200) + 100
 };
 
-function drawGraph() {
+// Random slope for the answer
+const trueSlope = (Math.random() * 4 - 2).toFixed(2); // between -2 and 2
+
+function drawGraph(userSlope = null) {
   ctx.clearRect(0, 0, width, height);
   // Axes
   ctx.strokeStyle = '#aaa';
@@ -26,23 +29,36 @@ function drawGraph() {
   ctx.beginPath();
   ctx.arc(point.x, point.y, 6, 0, 2 * Math.PI);
   ctx.fill();
+
+  // User's guessed line
+  if (userSlope !== null) {
+    ctx.strokeStyle = 'blue';
+    ctx.beginPath();
+    // y = m(x - x0) + y0
+    let x1 = 0;
+    let y1 = userSlope * (x1 - point.x) + point.y;
+    let x2 = width;
+    let y2 = userSlope * (x2 - point.x) + point.y;
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
 }
 
 drawGraph();
 
 document.getElementById('guess-btn').onclick = function() {
-  const xGuess = parseInt(document.getElementById('x-guess').value, 10);
-  const yGuess = parseInt(document.getElementById('y-guess').value, 10);
-  if (isNaN(xGuess) || isNaN(yGuess)) {
-    document.getElementById('result').textContent = 'Enter valid numbers for both coordinates.';
+  const guess = parseFloat(document.getElementById('slope').value);
+  if (isNaN(guess)) {
+    document.getElementById('result').textContent = 'Enter a valid number.';
     return;
   }
+  drawGraph(guess);
   // Show how close the guess is
-  const dx = Math.abs(xGuess - point.x);
-  const dy = Math.abs(yGuess - point.y);
-  if (dx < 5 && dy < 5) {
-    document.getElementById('result').textContent = `Correct! The point was at (${point.x}, ${point.y})`;
+  const diff = Math.abs(guess - trueSlope);
+  if (diff < 0.05) {
+    document.getElementById('result').textContent = `Correct! The slope was ${trueSlope}`;
   } else {
-    document.getElementById('result').textContent = `Off by (${dx}, ${dy}). Try again!`;
+    document.getElementById('result').textContent = `Off by ${diff.toFixed(2)}. Try again!`;
   }
 };

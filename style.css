@@ -27,15 +27,10 @@ body {
   z-index: 2;
   pointer-events: none;
 }
-#equation {
-  margin: 10px 0;
-  font-size: 1.2em;
-  font-weight: bold;
-}
-#explanation {
+#controls {
   margin-top: 10px;
-  background: #eee;
-  padding: 10px;
-  border-radius: 5px;
-  max-width: 400px;
+}
+#result {
+  margin-top: 10px;
+  font-weight: bold;
 }
